@@ -1,0 +1,52 @@
+security:
+    # Définition de l'algorithme pour hasher les mots de passe des utilisateurs
+    password_hashers:
+        App\Entity\User:
+            algorithm: auto
+
+    # Définition de la source des utilisateurs
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User       # La classe User de l'application
+                property: email              # Le champ utilisé pour identifier un utilisateur
+
+    # Configuration des firewalls (zones de sécurité)
+    firewalls:
+        # Firewall pour l'authentification via JWT
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login           # Point d'entrée pour l'authentification
+                username_path: email             # Champ utilisé pour le login
+                password_path: password          # Champ utilisé pour le mot de passe
+                success_handler: lexik_jwt_authentication.handler.authentication_success   # 🔹 LIGNE AJOUTÉE
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure   # 🔹 LIGNE AJOUTÉE
+
+        # Firewall pour toutes les routes API
+        api:
+            pattern: ^/api
+            stateless: true                      # Pas de session côté serveur
+            jwt: ~                               # Utilisation de JWT pour sécuriser les requêtes
+
+        # Firewall pour la déconnexion
+        #logout:
+           # pattern: ^/api/logout
+            #stateless: true
+
+    # Définition des règles d'accès (access_control)
+    access_control:
+        # Autoriser l'inscription sans token
+        - { path: ^/api/register$, roles: PUBLIC_ACCESS }
+
+        # Autoriser la connexion sans token
+        - { path: ^/api/login, roles: PUBLIC_ACCESS}
+
+        # Exemple : seules les admins peuvent accéder à /api/users
+        - { path: ^/api/users, roles: ROLE_ADMIN }
+
+        # Toutes les autres routes /api nécessitent un token JWT
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        # La page /logout est publique (tout le monde peut y accéder)
+        - { path: ^/api/logout, roles: PUBLIC_ACCESS }  
