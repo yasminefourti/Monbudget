@@ -37,3 +37,4 @@
 /phpunit.xml
 /.idea/
 /.vscode/
+.env.local
