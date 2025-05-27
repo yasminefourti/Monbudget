@@ -27,3 +27,13 @@
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+/var/
+/vendor/
+/.env
+.env.local
+.env.*.local
+/public/bundles/
+/node_modules/
+/phpunit.xml
+/.idea/
+/.vscode/
