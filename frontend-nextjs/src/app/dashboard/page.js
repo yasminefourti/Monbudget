@@ -152,7 +152,7 @@ export default function DashboardPage() {
 
             {/* Affichage conditionnel selon l'état */}
             {loading ? (
-              <div className="space-y-3">
+              <div className="space-y-3 ">
                 <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
                 <div className="animate-pulse bg-gray-200 h-2 w-full rounded"></div>
                 <div className="animate-pulse bg-gray-200 h-4 w-3/4 rounded"></div>
