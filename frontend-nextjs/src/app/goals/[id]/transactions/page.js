@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import api from 'lib/api';
-import DashboardPage from 'components/dashboardPage';
 
 export default function TransactionsPage() {
-  const router = useRouter();
-  const pathname = usePathname(); // ex: /goal/1/transactions
-  const goalId = pathname.split('/')[2];
+  const params = useParams();
+  const goalId = params.id;
 
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,24 +18,21 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (!goalId) return;
-
     async function fetchTransactions() {
       try {
         const res = await api.get(`/budget/goals/${goalId}/transactions`);
-        setTransactions(res.data);
+        setTransactions(res.data || []);
       } catch (error) {
         console.error('Erreur récupération transactions', error);
       } finally {
         setLoading(false);
       }
     }
-
     fetchTransactions();
   }, [goalId]);
 
   async function handleAddTransaction(e) {
     e.preventDefault();
-
     try {
       const res = await api.post(`/budget/goals/${goalId}/transactions`, {
         type,
@@ -57,31 +52,32 @@ export default function TransactionsPage() {
 
   async function handleDelete(id) {
     try {
-      await api.delete(`/budget/transactions/${id}`);
+      await api.delete(`/budget/goals/${goalId}/transactions/${id}`);
       setTransactions(transactions.filter(t => t.id !== id));
     } catch (error) {
       alert("Erreur lors de la suppression");
     }
   }
 
-  return (
-    <DashboardPage title="Transactions">
-      {loading ? (
-        <p>Chargement...</p>
-      ) : (
-        <>
-          <h2 className="text-xl font-semibold mb-4">
-            Transactions pour l'objectif #{goalId}
-          </h2>
+  if (loading) return <p className="text-white text-xl text-center mt-10">Chargement...</p>;
 
-          <form
-            onSubmit={handleAddTransaction}
-            className="space-y-4 mb-6 bg-gray-50 p-4 rounded-xl"
-          >
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-600 via-teal-600 to-cyan-600 p-6">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center text-black">
+          Transactions pour l’objectif <span className="text-black">#{goalId}</span>
+        </h1>
+
+        {/* Formulaire */}
+        <form
+          onSubmit={handleAddTransaction}
+          className="bg-white p-6 rounded-xl shadow mb-10 space-y-4"
+        >
+          <div className="grid md:grid-cols-2 gap-4">
             <select
               value={type}
               onChange={e => setType(e.target.value)}
-              className="p-2 border rounded"
+              className="w-full p-3 rounded-lg border"
             >
               <option value="recette">Recette</option>
               <option value="dépense">Dépense</option>
@@ -92,54 +88,60 @@ export default function TransactionsPage() {
               value={amount}
               onChange={e => setAmount(e.target.value)}
               required
-              className="p-2 border rounded block w-full"
+              className="w-full p-3 rounded-lg border"
             />
             <input
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
               required
-              className="p-2 border rounded block w-full"
+              className="w-full p-3 rounded-lg border"
             />
             <input
               type="text"
               placeholder="Description"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="p-2 border rounded block w-full"
+              className="w-full p-3 rounded-lg border"
             />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Ajouter transaction
-            </button>
-          </form>
+          </div>
+          <button
+            type="submit"
+            className=" w-full bg-teal-600 hover:bg-teal-700 text-white px-3 py-2  rounded-lg font-semibold"
+          >
+            Ajouter une transaction
+          </button>
+        </form>
 
-          <ul className="space-y-2">
-            {transactions.length === 0 && (
-              <li>Aucune transaction trouvée</li>
-            )}
-            {transactions.map(t => (
-              <li
+        {/* Liste des transactions */}
+        <h2 className="text-2xl font-semibold mb-4 text-black">Liste des transactions</h2>
+        <div className="space-y-4">
+          {transactions.length === 0 ? (
+            <p className="text-white/90">Aucune transaction trouvée.</p>
+          ) : (
+            transactions.map(t => (
+              <div
                 key={t.id}
-                className="p-4 border rounded flex justify-between items-center"
+                className="bg-white p-4 rounded-xl shadow flex items-center justify-between"
               >
-                <span>
-                  <b>{t.type}</b> - {t.amount} € -{' '}
-                  {new Date(t.date).toLocaleDateString()} - {t.description}
-                </span>
+                <div>
+                  <span className="font-bold capitalize">{t.type}</span> - {t.amount} €
+                  <span className="ml-2 text-gray-500">
+                    ({new Date(t.date).toLocaleDateString()})
+                  </span>
+                  <div className="text-gray-600 text-sm">{t.description}</div>
+                </div>
                 <button
                   onClick={() => handleDelete(t.id)}
-                  className="text-red-600 hover:underline"
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm"
                 >
                   Supprimer
                 </button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </DashboardPage>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

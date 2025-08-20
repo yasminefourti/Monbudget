@@ -51,13 +51,7 @@ export default function LoginPage() {
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-600 via-teal-600 to-cyan-600">
       <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-8 border border-slate-200">
         
-        {/* Logo & Titre */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="bg-gradient-to-br from-slate-600 via-teal-600 to-cyan-600 rounded-full p-3 shadow-md">
-            <span className="text-white font-bold text-xl">y</span>
-          </div>
-          <span className="ml-3 text-2xl font-bold text-slate-700">yassbudget</span>
-        </div>
+       
 
         <h1 className="text-xl font-semibold text-slate-800 mb-6 text-center">
           Connexion à votre compte

@@ -58,75 +58,75 @@ function ProfilePage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-600 text-lg">Chargement...</p>
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-fuchsia-600 text-white">
+        <p className="text-xl">Chargement...</p>
       </div>
     );
 
   return (
-    <div className="max-w-md mx-auto mt-12 p-6 bg-white rounded-md shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Mon profil</h2>
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-fuchsia-600 text-white flex items-center justify-center p-6">
+      <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-lg">
+        <h2 className="text-3xl font-bold text-center mb-6">Mon profil</h2>
 
-      {message && (
-        <div className="bg-green-100 text-green-700 p-3 mb-4 rounded">{message}</div>
-      )}
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 mb-4 rounded">{error}</div>
-      )}
+        {message && (
+          <div className="bg-green-500/20 text-green-200 p-3 mb-4 rounded-md text-sm text-center">
+            {message}
+          </div>
+        )}
+        {error && (
+          <div className="bg-red-500/20 text-red-200 p-3 mb-4 rounded-md text-sm text-center">
+            {error}
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block mb-1 font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            disabled
-            value={profile.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block mb-1 text-sm text-white/80">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              disabled
+              value={profile.email}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/60 border-none outline-none cursor-not-allowed"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="firstname" className="block mb-1 font-medium text-gray-700">
-            Prénom
-          </label>
-          <input
-            type="text"
-            id="firstname"
-            name="firstname"
-            value={profile.firstname}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <div>
+            <label htmlFor="firstname" className="block mb-1 text-sm text-white/80">Prénom</label>
+            <input
+              type="text"
+              id="firstname"
+              name="firstname"
+              value={profile.firstname}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="lastname" className="block mb-1 font-medium text-gray-700">
-            Nom
-          </label>
-          <input
-            type="text"
-            id="lastname"
-            name="lastname"
-            value={profile.lastname}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <div>
+            <label htmlFor="lastname" className="block mb-1 text-sm text-white/80">Nom</label>
+            <input
+              type="text"
+              id="lastname"
+              name="lastname"
+              value={profile.lastname}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Enregistrer
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 transition font-semibold shadow-lg"
+          >
+            Enregistrer
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
