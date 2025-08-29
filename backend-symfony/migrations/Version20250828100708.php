@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250506143842 extends AbstractMigration
+final class Version20250828100708 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,10 @@ final class Version20250506143842 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE objectifs ADD target_amount DOUBLE PRECISION NOT NULL, ADD start_date DATETIME NOT NULL, ADD end_date DATETIME NOT NULL, DROP targetAmount, DROP startDate, DROP endDate
+            ALTER TABLE categorie ADD type VARCHAR(255) NOT NULL
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE transaction DROP type, DROP description, CHANGE user_id user_id INT NOT NULL
         SQL);
     }
 
@@ -29,7 +32,10 @@ final class Version20250506143842 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE objectifs ADD targetAmount NUMERIC(10, 0) NOT NULL, ADD startDate DATETIME NOT NULL, ADD endDate DATETIME NOT NULL, DROP target_amount, DROP start_date, DROP end_date
+            ALTER TABLE categorie DROP type
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE transaction ADD type VARCHAR(255) NOT NULL, ADD description VARCHAR(255) DEFAULT NULL, CHANGE user_id user_id INT DEFAULT NULL
         SQL);
     }
 }

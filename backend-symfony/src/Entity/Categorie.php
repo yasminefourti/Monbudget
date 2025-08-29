@@ -33,6 +33,8 @@ class Categorie
     #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: Transaction::class)]
     private Collection $transactions;
 
+    
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();

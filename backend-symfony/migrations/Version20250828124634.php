@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250509102056 extends AbstractMigration
+final class Version20250828124634 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,13 +21,10 @@ final class Version20250509102056 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE transaction ADD objectif_id INT NOT NULL
+            ALTER TABLE categorie DROP type
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE transaction ADD CONSTRAINT FK_723705D1157D1AD4 FOREIGN KEY (objectif_id) REFERENCES objectif (id)
-        SQL);
-        $this->addSql(<<<'SQL'
-            CREATE INDEX IDX_723705D1157D1AD4 ON transaction (objectif_id)
+            ALTER TABLE transaction ADD type VARCHAR(255) NOT NULL, ADD description VARCHAR(255) DEFAULT NULL
         SQL);
     }
 
@@ -35,13 +32,10 @@ final class Version20250509102056 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE transaction DROP FOREIGN KEY FK_723705D1157D1AD4
+            ALTER TABLE categorie ADD type VARCHAR(255) NOT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            DROP INDEX IDX_723705D1157D1AD4 ON transaction
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE transaction DROP objectif_id
+            ALTER TABLE transaction DROP type, DROP description
         SQL);
     }
 }

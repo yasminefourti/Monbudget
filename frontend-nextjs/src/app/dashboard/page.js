@@ -1,11 +1,12 @@
-//src/app/dashboard/page.js
+// src/app/dashboard/page.js
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [goalProgress, setGoalProgress] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState({ firstname: '', lastname: '' });
@@ -16,51 +17,38 @@ export default function DashboardPage() {
     const storedLastName = localStorage.getItem('lastName') || '';
     setUser({ firstname: storedFirstName, lastname: storedLastName });
 
-    const fetchGoalProgress = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError("Token manquant - veuillez vous reconnecter");
+      setLoading(false);
+      return;
+    }
+
+    const fetchDashboardAndCategories = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError("Token manquant - veuillez vous reconnecter");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch('http://localhost:8000/api/budget/goals/1/progress', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
+        // Fetch dashboard
+        const dashboardResp = await fetch('http://localhost:8000/api/budget/dashboard', {
+          headers: { Authorization: `Bearer ${token}` }
         });
+        if (!dashboardResp.ok) throw new Error("Erreur lors du chargement du dashboard");
+        const dashboardJson = await dashboardResp.json();
+        setDashboardData(dashboardJson);
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            setError("Session expirée - veuillez vous reconnecter");
-            return;
-          }
-          if (response.status === 404) {
-            setError("Objectif non trouvé");
-            return;
-          }
-          throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        if (data && typeof data === 'object' && data.objectif) {
-          setGoalProgress(data);
-        } else {
-          throw new Error("Format de données invalide");
-        }
-
+        // Fetch categories
+        const categoriesResp = await fetch('http://localhost:8000/api/budget/categories', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!categoriesResp.ok) throw new Error("Erreur lors du chargement des catégories");
+        const categoriesJson = await categoriesResp.json();
+        setCategories(categoriesJson);
       } catch (err) {
-        setError(err.message || "Erreur lors du chargement de l'objectif");
+        setError(err.message || "Erreur inconnue");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGoalProgress();
+    fetchDashboardAndCategories();
   }, [router]);
 
   const formatDate = (dateString) => {
@@ -80,6 +68,8 @@ export default function DashboardPage() {
     return Math.min(Math.round((current / target) * 100), 100);
   };
 
+  const objectif = dashboardData?.objectif;
+
   return (
     <main className="min-h-screen bg-gradient-to-br p-5 font-sans from-slate-600 via-teal-600 to-cyan-600 shadow-md">
       <div className="max-w-6xl mx-auto">
@@ -89,9 +79,7 @@ export default function DashboardPage() {
             <span className="mr-2 text-3xl">💰</span> YassBudget
           </div>
           <div className="flex items-center gap-4">
-            <span>
-               {user.firstname}, {user.lastname}
-            </span>
+            <span>{user.firstname}, {user.lastname}</span>
             <div className="w-10 h-10 bg-amber-50 text-black rounded-full flex items-center justify-center font-bold">
               {user.firstname?.[0]?.toUpperCase() || ''}
             </div>
@@ -108,9 +96,9 @@ export default function DashboardPage() {
                   {loading ? (
                     <div className="animate-pulse bg-gray-200 h-6 w-48 rounded"></div>
                   ) : error ? (
-                    <span className="text-red-500">Erreur de chargement</span>
-                  ) : goalProgress?.objectif?.title ? (
-                    `Objectif: ${goalProgress.objectif.title}`
+                    <span className="text-red-500">{error}</span>
+                  ) : objectif?.title ? (
+                    `Objectif: ${objectif.title}`
                   ) : (
                     'Aucun objectif défini'
                   )}
@@ -118,8 +106,8 @@ export default function DashboardPage() {
                 <div className="text-sm text-gray-500">
                   {loading ? (
                     <div className="animate-pulse bg-gray-200 h-4 w-32 rounded mt-1"></div>
-                  ) : goalProgress?.objectif?.endDate ? (
-                    `Échéance: ${formatDate(goalProgress.objectif.endDate)}`
+                  ) : objectif?.endDate ? (
+                    `Échéance: ${formatDate(objectif.endDate)}`
                   ) : (
                     'Aucune échéance définie'
                   )}
@@ -127,39 +115,23 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {loading ? (
-              <div className="space-y-3">
-                <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
-                <div className="animate-pulse bg-gray-200 h-2 w-full rounded"></div>
-                <div className="animate-pulse bg-gray-200 h-4 w-3/4 rounded"></div>
-              </div>
-            ) : error ? (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                <div className="text-red-600 text-sm font-medium">⚠️ {error}</div>
-              </div>
-            ) : goalProgress ? (
+            {!loading && !error && objectif && (
               <>
                 <div className="flex justify-between text-sm text-gray-500 mb-2">
-                  <span>{goalProgress.currentAmount || 0}€ économisés</span>
-                  <span>{goalProgress.targetAmount || 0}€ objectif</span>
+                  <span>{objectif.currentAmount || 0}€ économisés</span>
+                  <span>{objectif.targetAmount || 0}€ objectif</span>
                 </div>
                 <div className="h-5 bg-gray-300 rounded overflow-hidden mb-2">
                   <div
                     className="h-full bg-gradient-to-r bg-emerald-700 transition-all duration-500"
-                    style={{
-                      width: `${calculateProgress(goalProgress.currentAmount, goalProgress.targetAmount)}%`
-                    }}
+                    style={{ width: `${calculateProgress(objectif.currentAmount, objectif.targetAmount)}%` }}
                   ></div>
                 </div>
                 <div className="text-sm text-black mb-4">
-                  ✅ Il vous reste {Math.max(0, (goalProgress.targetAmount || 0) - (goalProgress.currentAmount || 0))}€ à économiser
-                  {goalProgress.daysRemaining && (
-                    ` (${goalProgress.daysRemaining} jours restants)`
-                  )}
+                  ✅ Il vous reste {Math.max(0, (objectif.targetAmount || 0) - (objectif.currentAmount || 0))}€ à économiser
+                  {objectif.daysRemaining && ` (${objectif.daysRemaining} jours restants)`}
                 </div>
               </>
-            ) : (
-              <div className="text-gray-500 text-center py-4">Aucun objectif configuré</div>
             )}
 
             <button
@@ -167,7 +139,7 @@ export default function DashboardPage() {
               className="bg-cyan-200 text-emerald-950 py-2 px-4 rounded-lg font-semibold transition-colors duration-200"
               disabled={loading}
             >
-              {goalProgress ? 'Ajuster l\'objectif' : 'Créer un objectif'}
+              {objectif ? "Ajuster l'objectif" : "Créer un objectif"}
             </button>
           </div>
         </div>
@@ -179,12 +151,35 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-5">
               <div className="text-lg font-bold text-gray-800 flex items-center">📊 Transactions Récentes</div>
               <button
-                onClick={() => alert("Voir toutes les transactions")}
+                onClick={() => router.push(`/goals/${objectif?.id}/transactions`)}
                 className="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded-full"
               >
                 Voir tout
               </button>
             </div>
+
+            {loading ? (
+              <div className="space-y-3">
+                <div className="animate-pulse bg-gray-200 h-4 w-full rounded"></div>
+                <div className="animate-pulse bg-gray-200 h-4 w-3/4 rounded"></div>
+              </div>
+            ) : objectif?.recentTransactions?.length > 0 ? (
+              <ul className="space-y-3">
+                {objectif.recentTransactions.map(tx => (
+                  <li key={tx.id} className="flex justify-between items-center p-2 bg-gray-100 rounded-lg">
+                    <div>
+                      <span className={`font-semibold ${tx.type === 'recette' ? 'text-green-600' : 'text-red-600'}`}>
+                        {tx.type === 'recette' ? '+' : '-'}{tx.amount}€
+                      </span>
+                      <span className="ml-2 text-gray-500">{tx.categorie.nom}</span>
+                    </div>
+                    <div className="text-sm text-gray-400">{new Date(tx.date).toLocaleDateString('fr-FR')}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-500 text-center py-4">Aucune transaction récente</div>
+            )}
           </div>
 
           {/* Catégories */}
@@ -192,12 +187,24 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-5">
               <div className="text-lg font-bold text-gray-800 flex items-center">📋 Catégories</div>
               <button
-                onClick={() => alert("Gérer les catégories")}
+                onClick={() => router.push('/categories')} // fait redirection vers la page categories 
                 className="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded-full"
               >
                 Gérer
               </button>
             </div>
+
+            {loading ? (
+              <div className="animate-pulse h-20 w-full bg-gray-200 rounded"></div>
+            ) : categories.length > 0 ? (
+              <ul className="space-y-2">
+                {categories.map(cat => (
+                  <li key={cat.id} className="p-2 bg-gray-100 rounded-lg text-gray-700">{cat.nom}</li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-500 text-center py-4">Aucune catégorie</div>
+            )}
           </div>
         </div>
       </div>

@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Entity;
-use App\Entity\User;
 
+use App\Entity\User;
+use App\Entity\Categorie;
+use App\Entity\Objectif;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -34,38 +36,28 @@ class Transaction
     #[Groups(['transaction:read', 'transaction:write', 'goal:detail'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\ManyToOne(targetEntity: Objectif::class, inversedBy: 'transactions')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Objectif $objectif = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['transaction:read', 'transaction:write', 'goal:detail'])]
     private ?string $description = null;
-    
 
-    #[ORM\ManyToOne(inversedBy: 'transactions')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Categorie $categorie = null;
-    
-    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\ManyToOne(targetEntity: Objectif::class, inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['transaction:read', 'transaction:write'])]
+    private ?Objectif $objectif = null;
+
+    #[ORM\ManyToOne(targetEntity: Categorie::class, inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['transaction:read', 'transaction:write'])]
+    private ?Categorie $categorie = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['transaction:read'])]
     private ?User $user = null;
 
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    
-
+    // -------------------
+    // Getters & Setters
+    // -------------------
 
     public function getId(): ?int
     {
@@ -80,7 +72,6 @@ class Transaction
     public function setType(string $type): static
     {
         $this->type = $type;
-
         return $this;
     }
 
@@ -92,7 +83,6 @@ class Transaction
     public function setAmount(float $amount): static
     {
         $this->amount = $amount;
-
         return $this;
     }
 
@@ -104,19 +94,6 @@ class Transaction
     public function setDate(\DateTimeInterface $date): static
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    public function getObjectif(): ?Objectif
-    {
-        return $this->objectif;
-    }
-
-    public function setObjectif(?Objectif $objectif): static
-    {
-        $this->objectif = $objectif;
-
         return $this;
     }
 
@@ -128,7 +105,17 @@ class Transaction
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
 
+    public function getObjectif(): ?Objectif
+    {
+        return $this->objectif;
+    }
+
+    public function setObjectif(?Objectif $objectif): static
+    {
+        $this->objectif = $objectif;
         return $this;
     }
 
@@ -140,7 +127,17 @@ class Transaction
     public function setCategorie(?Categorie $categorie): static
     {
         $this->categorie = $categorie;
+        return $this;
+    }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
 }

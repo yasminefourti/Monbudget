@@ -65,86 +65,92 @@ export default function CategoriesPage() {
     }
   }
 
-  if (loading) return <p className="text-center mt-10">Chargement...</p>;
+  if (loading) return <p className="text-center mt-10 text-white">Chargement...</p>;
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6">
-      <h1 className="text-2xl font-bold mb-6 text-purple-700">Gestion des Catégories</h1>
+    <div className="min-h-screen bg-gradient-to-r from-slate-600 via-teal-600 to-cyan-600 flex items-center justify-center p-6">
+      <div className="max-w-3xl w-full bg-white shadow-2xl rounded-2xl p-8 border border-gray-200">
+        <h1 className="text-3xl font-bold mb-8 text-center text-cyan-700">
+           Gestion des Catégories
+        </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
-        <div>
-          <input
-            type="text"
-            placeholder="Nom de la catégorie"
-            value={nom}
-            onChange={e => setNom(e.target.value)}
-            className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            placeholder="Description (optionnelle)"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-          />
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition"
-          >
-            {editingId ? 'Modifier' : 'Ajouter'}
-          </button>
-          {editingId && (
+        {/* Formulaire */}
+        <form onSubmit={handleSubmit} className="space-y-4 mb-10">
+          <div>
+            <input
+              type="text"
+              placeholder="Nom de la catégorie"
+              value={nom}
+              onChange={e => setNom(e.target.value)}
+              className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Description (optionnelle)"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+          <div className="flex gap-3">
             <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setNom('');
-                setDescription('');
-              }}
-              className="bg-gray-300 px-4 py-2 rounded-xl hover:bg-gray-400 transition"
+              type="submit"
+              className="bg-cyan-600 text-white px-5 py-2 rounded-xl shadow hover:bg-cyan-700 transition font-medium"
             >
-              Annuler
+              {editingId ? ' Modifier' : ' Ajouter'}
             </button>
-          )}
-        </div>
-      </form>
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setNom('');
+                  setDescription('');
+                }}
+                className="bg-gray-200 px-5 py-2 rounded-xl hover:bg-gray-300 transition"
+              >
+                Annuler
+              </button>
+            )}
+          </div>
+        </form>
 
-      {categories.length === 0 ? (
-        <p className="text-gray-500 text-center">Aucune catégorie trouvée.</p>
-      ) : (
-        <ul className="space-y-4">
-          {categories.map(cat => (
-            <li
-              key={cat.id}
-              className="flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3 shadow-sm"
-            >
-              <div>
-                <p className="font-semibold text-purple-700">{cat.nom}</p>
-                <p className="text-sm text-gray-500">{cat.description}</p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(cat)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Modifier
-                </button>
-                <button
-                  onClick={() => handleDelete(cat.id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Supprimer
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        {/* Liste */}
+        {categories.length === 0 ? (
+          <p className="text-gray-500 text-center italic">Aucune catégorie trouvée.</p>
+        ) : (
+          <ul className="space-y-4">
+            {categories.map(cat => (
+              <li
+                key={cat.id}
+                className="flex items-center justify-between bg-gradient-to-r from-cyan-100 text-black border rounded-xl px-5 py-4 shadow hover:shadow-lg transition"
+              >
+                <div>
+                  <p className="font-semibold">{cat.nom}</p>
+                  <p className="text-sm opacity-90">{cat.description}</p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleEdit(cat)}
+                    className="bg-cyan-200 px-3 py-1 rounded-lg hover:bg-white/30 transition"
+                  >
+                     Modifier
+                  </button>
+                  <button
+                    onClick={() => handleDelete(cat.id)}
+                    className="bg-cyan-200 px-3 py-1 rounded-lg hover:bg-white/30 transition"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
