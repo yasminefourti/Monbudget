@@ -1,4 +1,3 @@
-// src/app/dashboard/page.js
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,7 +11,6 @@ export default function DashboardPage() {
   const [user, setUser] = useState({ firstname: '', lastname: '' });
 
   useEffect(() => {
-    // Charger le prénom et nom depuis localStorage
     const storedFirstName = localStorage.getItem('firstName') || '';
     const storedLastName = localStorage.getItem('lastName') || '';
     setUser({ firstname: storedFirstName, lastname: storedLastName });
@@ -26,7 +24,6 @@ export default function DashboardPage() {
 
     const fetchDashboardAndCategories = async () => {
       try {
-        // Fetch dashboard
         const dashboardResp = await fetch('http://localhost:8000/api/budget/dashboard', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -34,7 +31,6 @@ export default function DashboardPage() {
         const dashboardJson = await dashboardResp.json();
         setDashboardData(dashboardJson);
 
-        // Fetch categories
         const categoriesResp = await fetch('http://localhost:8000/api/budget/categories', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -50,6 +46,27 @@ export default function DashboardPage() {
 
     fetchDashboardAndCategories();
   }, [router]);
+
+  // Fonction déconnexion
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      await fetch('http://localhost:8000/api/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (e) {
+      console.error("Erreur lors de la déconnexion", e);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('firstName');
+      localStorage.removeItem('lastName');
+      router.push('/login'); 
+    }
+  };
 
   const formatDate = (dateString) => {
     try {
@@ -73,6 +90,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br p-5 font-sans from-slate-600 via-teal-600 to-cyan-600 shadow-md">
       <div className="max-w-6xl mx-auto">
+        
         {/* Header */}
         <header className="bg-cyan-200 backdrop-blur-lg rounded-2xl p-6 mb-5 flex justify-between items-center shadow-xl">
           <div className="flex items-center text-2xl font-bold text-black">
@@ -83,6 +101,24 @@ export default function DashboardPage() {
             <div className="w-10 h-10 bg-amber-50 text-black rounded-full flex items-center justify-center font-bold">
               {user.firstname?.[0]?.toUpperCase() || ''}
             </div>
+
+            {/* Bouton Mon Profil */}
+            <button
+              onClick={() => router.push('/profile')}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors bg-gray-100"
+            >
+              <span>👤</span>
+              <span>Mon Profil</span>
+            </button>
+
+            {/* Bouton Déconnexion */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors bg-gray-100"
+            >
+              <span>🔒</span>
+              <span>Se déconnecter</span>
+            </button>
           </div>
         </header>
 
@@ -187,7 +223,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center mb-5">
               <div className="text-lg font-bold text-gray-800 flex items-center">📋 Catégories</div>
               <button
-                onClick={() => router.push('/categories')} // fait redirection vers la page categories 
+                onClick={() => router.push('/categories')}
                 className="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded-full"
               >
                 Gérer

@@ -76,6 +76,15 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          {/* Lien mot de passe oublié */}
+          <p className="text-right text-sm mt-1">
+            <a
+              href="/forgot-password"
+              className="text-teal-600 font-medium hover:underline"
+            >
+              Mot de passe oublié ?
+            </a>
+          </p>
 
           {error && (
             <p className="text-red-500 text-sm text-center">{error}</p>

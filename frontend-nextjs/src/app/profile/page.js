@@ -58,13 +58,13 @@ function ProfilePage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-fuchsia-600 text-white">
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br  hover:from-slate-700 hover:via-teal-700 hover:to-cyan-700  text-white">
         <p className="text-xl">Chargement...</p>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-fuchsia-600 text-white flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br  hover:from-slate-700 hover:via-teal-700 hover:to-cyan-700  text-white flex items-center justify-center p-6">
       <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-lg">
         <h2 className="text-3xl font-bold text-center mb-6">Mon profil</h2>
 
@@ -121,7 +121,7 @@ function ProfilePage() {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 transition font-semibold shadow-lg"
+            className="w-full py-3 rounded-xl bg-gradient-to-r  hover:from-slate-700 hover:via-teal-700 hover:to-cyan-700  transition font-semibold shadow-lg"
           >
             Enregistrer
           </button>
