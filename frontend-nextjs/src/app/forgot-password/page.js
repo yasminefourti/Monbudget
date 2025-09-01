@@ -1,10 +1,10 @@
+//forgot-password/page.js
 "use client";
 
 import { useState } from "react";
 
 const BACKEND = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-const RESET_URL = `${BACKEND}/reset-password`;
-const CHECK_EMAIL_URL = `${BACKEND}/reset-password/check-email`;
+const API_RESET_URL = `${BACKEND}/reset-password`;
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -19,37 +19,47 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      // FormData avec le nom exact attendu par Symfony
-      const formData = new FormData();
-      formData.append("reset_password_request_form[email]", email); // ajouter
-
-      // Optionnel : vérification console
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-
-      const res = await fetch(RESET_URL, {
+      const response = await fetch(API_RESET_URL, {
         method: "POST",
-        body: formData,
-        credentials: "include",   // envoie les cookies si nécessaire
-        redirect: "follow",
         headers: {
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Content-Type": "application/json",
+          "Accept": "application/json",
         },
+        body: JSON.stringify({
+          email: email.trim()
+        }),
       });
 
-      // Si le backend redirige, on suit la redirection
-      if (res.redirected && res.url) {
-        window.location.assign(res.url);
+      const data = await response.json();
+
+      console.log("Response:", {
+        status: response.status,
+        data
+      });
+
+      if (!response.ok) {
+        // Gestion des erreurs
+        if (data.errors && Array.isArray(data.errors)) {
+          setError(data.errors.join(", "));
+        } else {
+          setError(data.message || "Une erreur est survenue");
+        }
         return;
       }
 
-      // Sinon, on navigue vers la page check-email pour simuler le flux Symfony
-      window.location.assign(CHECK_EMAIL_URL);
+      // Succès
+      setMessage(data.message);
+      setEmail(""); // Vider le champ
+
+      // Optionnel : rediriger après quelques secondes
+      setTimeout(() => {
+        // Vous pouvez rediriger vers une page de confirmation
+        // window.location.href = "/login";
+      }, 3000);
 
     } catch (err) {
-      console.error(err);
-      setError(`Erreur: ${err.message}`);
+      console.error("Network error:", err);
+      setError("Erreur de connexion. Vérifiez votre connexion internet.");
     } finally {
       setLoading(false);
     }
@@ -62,6 +72,14 @@ export default function ForgotPasswordPage() {
           Mot de passe oublié
         </h1>
 
+        {/* Debug info en développement */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+            <p>API URL: {API_RESET_URL}</p>
+            <p>Backend: {BACKEND}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -71,6 +89,7 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
 
           {message && (
@@ -87,14 +106,14 @@ export default function ForgotPasswordPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !email.trim()}
             className={`w-full p-3 rounded-xl font-semibold text-white shadow-md transition-all duration-200 ${
-              loading
+              loading || !email.trim()
                 ? "bg-slate-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-slate-600 via-teal-600 to-cyan-600 hover:from-slate-700 hover:via-teal-700 hover:to-cyan-700 transform hover:scale-[1.02]"
             }`}
           >
-            {loading ? "Envoi..." : "Envoyer le lien"}
+            {loading ? "Envoi en cours..." : "Envoyer le lien"}
           </button>
         </form>
 

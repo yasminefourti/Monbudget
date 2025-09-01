@@ -25,6 +25,7 @@ security:
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure   # 🔹 LIGNE AJOUTÉE
 
         # Firewall pour toutes les routes API
+        
         api:
             pattern: ^/api
             stateless: true                      # Pas de session côté serveur
@@ -34,6 +35,8 @@ security:
         #logout:
            # pattern: ^/api/logout
             #stateless: true
+
+        
 
     # Définition des règles d'accès (access_control)
     access_control:
